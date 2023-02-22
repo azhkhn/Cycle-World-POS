@@ -154,6 +154,7 @@ export default {
     groups: [],
     territory: '',
     territorys: [],
+    regex : /^\d+$/,
   }),
   watch: {},
   methods: {
@@ -235,8 +236,15 @@ export default {
     },
   },
   created: function () {
-    evntBus.$on('open_new_customer', () => {
+    evntBus.$on('open_new_customer', (customer) => {
       this.customerDialog = true;
+      if(this.regex.test(customer.srcElement.value)){
+        this.mobile_no = customer.srcElement.value
+      }
+      else{
+        this.customer_name = customer.srcElement.value?customer.srcElement.value:''
+      }
+      
     });
     evntBus.$on('register_pos_profile', (data) => {
       this.pos_profile = data.pos_profile;

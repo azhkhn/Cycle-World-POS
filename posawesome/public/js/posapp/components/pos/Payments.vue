@@ -899,7 +899,7 @@ export default {
     },
     shortPay(e) {
       if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
+        // e.preventDefault();
         this.submit();
       }
     },

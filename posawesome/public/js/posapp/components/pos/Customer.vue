@@ -17,6 +17,7 @@
       :filter="customFilter"
       :disabled="readonly"
       append-icon="mdi-plus"
+      @keyup="CustomerOnchange"
       @click:append="new_customer"
       prepend-inner-icon="mdi-account-edit"
       @click:prepend-inner="edit_customer"
@@ -59,6 +60,8 @@
 import { evntBus } from '../../bus';
 export default {
   data: () => ({
+    customer_typed_value:'',
+    regex : /^\d+$/,
     pos_profile: '',
     customers: [],
     customer: '',
@@ -66,6 +69,10 @@ export default {
   }),
 
   methods: {
+    CustomerOnchange(value){
+      this.customer_typed_value = value
+      console.log(this)
+    },
     get_customer_names() {
       const vm = this;
       if (vm.pos_profile.posa_local_storage && localStorage.customer_storage) {
@@ -92,7 +99,7 @@ export default {
       });
     },
     new_customer() {
-      evntBus.$emit('open_new_customer');
+      evntBus.$emit('open_new_customer', this.customer_typed_value);
     },
     edit_customer() {
       evntBus.$emit('open_edit_customer');
@@ -127,6 +134,7 @@ export default {
       });
       evntBus.$on('set_customer', (customer) => {
         this.customer = customer;
+        this.customer_typed_value = '';
       });
       evntBus.$on('add_customer_to_list', (customer) => {
         this.customers.push(customer);

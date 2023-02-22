@@ -1657,22 +1657,30 @@ export default {
     shortDeleteFirstItem(e) {
       if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
+        if(!this.items[0]){
+          return
+        }
         this.remove_item(this.items[0]);
       }
     },
 
     shortOpenFirstItem(e) {
       if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
+        // e.preventDefault();
         this.expanded = [];
+        if(!this.items[0]){
+          return
+        }
         this.expanded.push(this.items[0]);
       }
     },
 
     shortSelectDiscount(e) {
       if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.$refs.discount.focus();
+        // e.preventDefault();
+        if(this.$refs.discount){
+          this.$refs.discount.focus();
+        }
       }
     },
 

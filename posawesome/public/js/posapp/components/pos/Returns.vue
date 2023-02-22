@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="invoicesDialog" max-width="800px" min-width="800px">
+    <v-dialog v-model="invoicesDialog" max-width="800px" min-width="800px" @keydown.enter="onEnter">
       <v-card>
         <v-card-title>
           <span class="headline primary--text">{{
@@ -103,6 +103,10 @@ export default {
   }),
   watch: {},
   methods: {
+    onEnter() {
+      this.search_invoices();
+    },
+
     close_dialog() {
       this.invoicesDialog = false;
     },

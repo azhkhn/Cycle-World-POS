@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="dialog" persistent max-width="600px">
+    <v-dialog v-model="dialog" persistent max-width="600px"  @keydown.enter="onEnter">
       <!-- <template v-slot:activator="{ on, attrs }">
         <v-btn color="primary" dark v-bind="attrs" v-on="on">Open Dialog</v-btn>
       </template>-->
@@ -130,6 +130,9 @@ export default {
     },
   },
   methods: {
+    onEnter(){
+      this.submit_dialog()
+    },
     close_opening_dialog() {
       evntBus.$emit('close_opening_dialog');
     },

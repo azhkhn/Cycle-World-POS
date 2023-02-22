@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="draftsDialog" max-width="800px">
+    <v-dialog v-model="draftsDialog" max-width="800px" @keydown.enter="onEnter">
       <!-- <template v-slot:activator="{ on, attrs }">
         <v-btn color="primary" dark v-bind="attrs" v-on="on">Open Dialog</v-btn>
       </template>-->
@@ -52,7 +52,7 @@ export default {
     headers: [
       {
         text: __('Customer'),
-        value: 'customer',
+        value: 'customer_name',
         align: 'start',
         sortable: true,
       },
@@ -78,6 +78,11 @@ export default {
   }),
   watch: {},
   methods: {
+    onEnter(){
+      console.log('enter')
+      this.submit_dialog()
+    },
+    
     close_dialog() {
       this.draftsDialog = false;
     },
