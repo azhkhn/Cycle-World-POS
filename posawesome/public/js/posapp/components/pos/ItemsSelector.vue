@@ -12,6 +12,33 @@
         color="info"
       ></v-progress-linear>
       <v-row class="items px-2 py-1">
+        <v-col
+          v-if="pos_profile.posa_allow_sales_order"
+          cols="9"
+          class="pb-2 pr-0"
+        >
+          <Customer></Customer>
+        </v-col>
+        <v-col
+          v-if="!pos_profile.posa_allow_sales_order"
+          cols="12"
+          class="pb-2"
+        >
+          <Customer></Customer>
+        </v-col>
+        <v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-2">
+          <v-select
+            dense
+            hide-details
+            outlined
+            color="primary"
+            background-color="white"
+            :items="invoiceTypes"
+            :label="frappe._('Type')"
+            v-model="invoiceType"
+            :disabled="invoiceType == 'Return'"
+          ></v-select>
+        </v-col>
         <v-col class="pb-0 mb-2">
           <v-text-field
             dense
@@ -159,10 +186,13 @@
 
 <script>
 import { evntBus } from '../../bus';
+import Customer from './Customer.vue';
 import _ from 'lodash';
 export default {
   data: () => ({
     pos_profile: '',
+    customer: '',
+    customer_info: '',
     flags: {},
     items_view: 'list',
     item_group: 'ALL',
@@ -342,13 +372,16 @@ export default {
     },
     get_search(first_search) {
       let search_term = '';
+      console.log("hii")
       if (
         first_search &&
         first_search.startsWith(this.pos_profile.posa_scale_barcode_start)
       ) {
         search_term = first_search.substr(0, 7);
+        console.log("hii1")
       } else {
         search_term = first_search;
+        console.log("hii2")
       }
       return search_term;
     },
@@ -438,6 +471,7 @@ export default {
       } else {
         filtred_group_list = this.items;
       }
+      console.log(this.search)
       if (!this.search || this.search.length < 3) {
         if (
           this.pos_profile.posa_show_template_items &&
@@ -461,14 +495,18 @@ export default {
           return found;
         });
         if (filtred_list.length == 0) {
-          filtred_list = filtred_group_list.filter((item) =>
-            item.item_code.toLowerCase().includes(this.search.toLowerCase())
-          );
+          var regex = new RegExp("\\b(" + this.search.toLowerCase().replace(/ /g,"|") + ")\\b", "gi");
+          console.log(regex)
+          console.log(filtred_group_list)
+          // filtred_list = filtred_group_list.filter((item) =>
+          //   item.item_code.toLowerCase().match(regex)
+          // );
           if (filtred_list.length == 0) {
             filtred_list = filtred_group_list.filter((item) =>
-              item.item_name.toLowerCase().includes(this.search.toLowerCase())
+              item.item_name.toLowerCase().match(regex)
             );
           }
+          console.log(filtred_list)
           if (
             filtred_list.length == 0 &&
             this.pos_profile.posa_search_serial_no
@@ -506,7 +544,9 @@ export default {
       }, 200),
     },
   },
-
+components: {
+    Customer,
+},
   created: function () {
     this.$nextTick(function () {});
     evntBus.$on('register_pos_profile', (data) => {

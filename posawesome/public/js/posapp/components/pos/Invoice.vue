@@ -22,7 +22,7 @@
       style="max-height: 70vh; height: 70vh"
       class="cards my-0 py-0 grey lighten-5"
     >
-      <v-row align="center" class="items px-2 py-1">
+      <!-- <v-row align="center" class="items px-2 py-1">
         <v-col
           v-if="pos_profile.posa_allow_sales_order"
           cols="9"
@@ -50,7 +50,7 @@
             :disabled="invoiceType == 'Return'"
           ></v-select>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <v-row
         align="center"
@@ -166,12 +166,83 @@
             :items-per-page="itemsPerPage"
             hide-default-footer
           >
-            <template v-slot:item.qty="{ item }">{{
-              formtFloat(item.qty)
-            }}</template>
-            <template v-slot:item.rate="{ item }">{{
-              formtCurrency(item.rate)
-            }}</template>
+            <template v-slot:item.qty="{ item }">
+              <v-text-field
+                dense
+                color="primary"
+                background-color="white"
+                hide-details
+                v-model.number="item.qty"
+                type="number"
+                @change="calc_sotck_gty(item, $event)"
+                :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
+              ></v-text-field>
+            </template>
+            <template v-slot:item.discount_percentage="{ item }">
+              <v-text-field
+                dense
+                color="primary"
+                background-color="white"
+                hide-details
+                v-model.number="item.discount_percentage"
+                type="number"
+                @change="calc_prices(item, $event)"
+                id="discount_percentage"
+                :disabled="
+                  !!item.posa_is_offer ||
+                  !!item.posa_is_replace ||
+                  item.posa_offer_applied ||
+                  !pos_profile.posa_allow_user_to_edit_item_discount ||
+                  !!invoice_doc.is_return
+                    ? true
+                    : false
+                "
+              ></v-text-field>
+            </template>
+            <template v-slot:item.discount_amount="{ item }">
+              <v-text-field
+                dense
+                color="primary"
+                background-color="white"
+                hide-details
+                v-model.number="item.discount_amount"
+                type="number"
+                :prefix="invoice_doc.currency"
+                @change="calc_prices(item, $event)"
+                id="discount_amount"
+                :disabled="
+                  !!item.posa_is_offer ||
+                  !!item.posa_is_replace ||
+                  !!item.posa_offer_applied ||
+                  !pos_profile.posa_allow_user_to_edit_item_discount ||
+                  !!invoice_doc.is_return
+                    ? true
+                    : false
+                "
+              ></v-text-field>
+            </template>
+            <template v-slot:item.rate="{ item }">
+              <v-text-field
+                dense
+                color="primary"
+                background-color="white"
+                hide-details
+                v-model.number="item.rate"
+                type="number"
+                :prefix="invoice_doc.currency"
+                @change="calc_prices(item, $event)"
+                id="rate"
+                :disabled="
+                  !!item.posa_is_offer ||
+                  !!item.posa_is_replace ||
+                  !!item.posa_offer_applied ||
+                  !pos_profile.posa_allow_user_to_edit_rate ||
+                  !!invoice_doc.is_return
+                    ? true
+                    : false
+                "
+              ></v-text-field>
+            </template>
             <template v-slot:item.amount="{ item }">{{
               formtCurrency(item.qty * item.rate)
             }}</template>
@@ -796,10 +867,12 @@ export default {
           value: 'item_name',
         },
         { text: __('QTY'), value: 'qty', align: 'center' },
-        { text: __('UOM'), value: 'uom', align: 'center' },
+        // { text: __('UOM'), value: 'uom', align: 'center' },
+        { text: __('Discount %'), value: 'discount_percentage', align: 'center' },
+        { text: __('Discount Amt'), value: 'discount_amount', align: 'center' },
         { text: __('Rate'), value: 'rate', align: 'center' },
         { text: __('Amount'), value: 'amount', align: 'center' },
-        { text: __('is Offer'), value: 'posa_is_offer', align: 'center' },
+        // { text: __('is Offer'), value: 'posa_is_offer', align: 'center' },
       ],
     };
   },
@@ -2424,6 +2497,13 @@ export default {
     },
 
     print_draft_invoice() {
+      if (!this.customer){
+        evntBus.$emit('show_mesage', {
+          text: __(`First Select Customer..`),
+          color: 'error',
+        });
+        return;
+      }
       if (!this.pos_profile.posa_allow_print_draft_invoices) {
         evntBus.$emit('show_mesage', {
           text: __(`You are not allowed to print draft invoices`),
