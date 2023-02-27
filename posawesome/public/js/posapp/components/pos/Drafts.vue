@@ -79,7 +79,6 @@ export default {
   watch: {},
   methods: {
     onEnter(){
-      console.log('enter')
       this.submit_dialog()
     },
     

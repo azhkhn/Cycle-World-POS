@@ -372,16 +372,13 @@ export default {
     },
     get_search(first_search) {
       let search_term = '';
-      console.log("hii")
       if (
         first_search &&
         first_search.startsWith(this.pos_profile.posa_scale_barcode_start)
       ) {
         search_term = first_search.substr(0, 7);
-        console.log("hii1")
       } else {
         search_term = first_search;
-        console.log("hii2")
       }
       return search_term;
     },
@@ -471,7 +468,6 @@ export default {
       } else {
         filtred_group_list = this.items;
       }
-      console.log(this.search)
       if (!this.search || this.search.length < 3) {
         if (
           this.pos_profile.posa_show_template_items &&
@@ -496,8 +492,6 @@ export default {
         });
         if (filtred_list.length == 0) {
           var regex = new RegExp("\\b(" + this.search.toLowerCase().replace(/ /g,"|") + ")\\b", "gi");
-          console.log(regex)
-          console.log(filtred_group_list)
           // filtred_list = filtred_group_list.filter((item) =>
           //   item.item_code.toLowerCase().match(regex)
           // );
@@ -506,7 +500,6 @@ export default {
               item.item_name.toLowerCase().match(regex)
             );
           }
-          console.log(filtred_list)
           if (
             filtred_list.length == 0 &&
             this.pos_profile.posa_search_serial_no

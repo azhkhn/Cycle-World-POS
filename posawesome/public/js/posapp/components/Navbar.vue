@@ -124,6 +124,9 @@
     </v-navigation-drawer>
     <v-snackbar v-model="snack" :timeout="5000" :color="snackColor" top right>
       {{ snackText }}
+        <template v-slot:action="{ attrs }">
+          <v-btn text v-bind="attrs" @click="snack = false"> <v-icon>mdi-close-circle</v-icon> </v-btn>
+        </template>
     </v-snackbar>
     <v-dialog v-model="freeze" persistent max-width="290">
       <v-card>

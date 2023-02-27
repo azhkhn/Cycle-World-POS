@@ -71,7 +71,6 @@ export default {
   methods: {
     CustomerOnchange(value){
       this.customer_typed_value = value
-      console.log(this)
     },
     get_customer_names() {
       const vm = this;
