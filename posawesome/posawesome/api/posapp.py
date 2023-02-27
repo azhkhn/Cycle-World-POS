@@ -744,9 +744,8 @@ def get_items_details(pos_profile, items_data):
         for item in items_data:
             item_code = item.get("item_code")
             item_stock_qty = get_stock_availability(item_code, warehouse)
-            has_batch_no, has_serial_no = frappe.get_value(
-                "Item", item_code, ["has_batch_no", "has_serial_no"]
-            )
+            has_batch_no = frappe.get_value("Item", item_code, "has_batch_no")
+            has_serial_no = frappe.get_value("Item", item_code,  "has_serial_no")
 
             uoms = frappe.get_all(
                 "UOM Conversion Detail",
@@ -1518,7 +1517,6 @@ def set_payment_schedule(doc):
                 base_payment_amount=base_grand_total,
             )
             doc.append("payment_schedule", data)
-    frappe.msgprint(str(doc.outstanding_amount))
     for d in doc.get("payment_schedule"):
         if d.invoice_portion:
             d.payment_amount = flt(

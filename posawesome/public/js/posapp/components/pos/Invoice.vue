@@ -1054,6 +1054,7 @@ export default {
       const doc = this.get_invoice_doc();
       this.invoiceType = 'Invoice';
       this.invoiceTypes = ['Invoice', 'Order'];
+      evntBus.$emit('update_invoice_type', {'invoice_types':['Invoice', 'Order'],'invoice_type':'Invoice'})
       this.posting_date = frappe.datetime.nowdate();
       if (doc.name && this.pos_profile.posa_allow_delete) {
         frappe.call({
@@ -1109,11 +1110,13 @@ export default {
         this.additional_discount_percentage = 0;
         this.invoiceType = 'Invoice';
         this.invoiceTypes = ['Invoice', 'Order'];
+        evntBus.$emit('update_invoice_type', {'invoice_types':['Invoice', 'Order'],'invoice_type':'Invoice'})
       } else {
         if (data.is_return) {
           evntBus.$emit('set_customer_readonly', true);
           this.invoiceType = 'Return';
           this.invoiceTypes = ['Return'];
+          evntBus.$emit('update_invoice_type', {'invoice_types':['Return'],'invoice_type':'Return'})
         }
         this.invoice_doc = data;
         this.items = data.items;
@@ -2617,6 +2620,9 @@ export default {
     evntBus.$on('set_new_line', (data) => {
       this.new_line = data;
     });
+    evntBus.$on('onchange_invoice_type', (data) => {
+      this.invoiceType = data
+    })
     document.addEventListener('keydown', this.shortOpenPayment.bind(this));
     document.addEventListener('keydown', this.shortDeleteFirstItem.bind(this));
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));

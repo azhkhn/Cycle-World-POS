@@ -211,6 +211,8 @@ export default {
     currency_precision: 2,
     new_line: false,
     qty: 1,
+    invoiceTypes: ['Invoice', 'Order'],
+    invoiceType: 'Invoice',
   }),
 
   watch: {
@@ -223,6 +225,9 @@ export default {
     new_line() {
       evntBus.$emit('set_new_line', this.new_line);
     },
+    invoiceType() {
+      evntBus.$emit('onchange_invoice_type', this.invoiceType)
+    }
   },
 
   methods: {
@@ -232,7 +237,7 @@ export default {
     show_coupons() {
       evntBus.$emit('show_coupons', 'true');
     },
-    get_items() {
+    get_items(search_term='') {
       if (!this.pos_profile) {
         console.log('No POS Profile');
         return;
@@ -249,6 +254,7 @@ export default {
         args: {
           pos_profile: vm.pos_profile,
           price_list: vm.customer_price_list,
+          txt: search_term
         },
         callback: function (r) {
           if (r.message) {
@@ -468,7 +474,7 @@ export default {
       } else {
         filtred_group_list = this.items;
       }
-      if (!this.search || this.search.length < 3) {
+      if (!this.search) {
         if (
           this.pos_profile.posa_show_template_items &&
           this.pos_profile.posa_hide_variants_items
@@ -491,15 +497,16 @@ export default {
           return found;
         });
         if (filtred_list.length == 0) {
-          var regex = new RegExp("\\b(" + this.search.toLowerCase().replace(/ /g,"|") + ")\\b", "gi");
-          // filtred_list = filtred_group_list.filter((item) =>
-          //   item.item_code.toLowerCase().match(regex)
-          // );
-          if (filtred_list.length == 0) {
-            filtred_list = filtred_group_list.filter((item) =>
-              item.item_name.toLowerCase().match(regex)
-            );
-          }
+          this.splitted = this.search.split(' ');
+          filtred_list = filtred_group_list.filter((item)=>{
+                  var match = this.splitted.filter((txt)=>{
+                    return item.item_name.toLowerCase().includes(txt.toLowerCase())?true:false
+                  })
+                  if(!match.includes(false) && match.length){
+                  }
+                  return  match.length == this.splitted.length
+                  
+              })
           if (
             filtred_list.length == 0 &&
             this.pos_profile.posa_search_serial_no
@@ -564,6 +571,12 @@ components: {
     });
     evntBus.$on('update_customer_price_list', (data) => {
       this.customer_price_list = data;
+    });
+    evntBus.$on('update_invoice_type', (data) => {
+      if(data.invoice_types && data.invoice_type){
+      this.invoiceTypes = data.invoice_types;
+      this.invoiceType = data.invoice_type;
+      }
     });
   },
 
