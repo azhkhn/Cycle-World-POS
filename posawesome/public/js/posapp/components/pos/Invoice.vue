@@ -19,7 +19,7 @@
       </v-card>
     </v-dialog>
     <v-card
-      style="max-height: 70vh; height: 70vh"
+      style="max-height: 35vh; height: 35vh;"
       class="cards my-0 py-0 grey lighten-5"
     >
       <!-- <v-row align="center" class="items px-2 py-1">
@@ -660,7 +660,8 @@
         </template>
       </div>
     </v-card>
-    <v-card class="cards mb-0 mt-3 py-0 grey lighten-5">
+    <v-card class="cards mb-0 mt-3 py-0 grey lighten-5" 
+            >
       <v-row no-gutters>
         <v-col cols="7">
           <v-row no-gutters class="pa-1 pt-9 pr-1">
@@ -1602,8 +1603,9 @@ export default {
     },
 
     calc_prices(item, value, $event) {
+      console.log(item, value, $event, event)
       if (event.target.id === 'rate') {
-        item.discount_percentage = 0;
+        // item.discount_percentage = 0;
         if (value < item.price_list_rate) {
           item.discount_amount = (
             flt(item.price_list_rate) - flt(value)
@@ -1612,14 +1614,14 @@ export default {
           item.rate = item.price_list_rate;
           item.discount_amount = 0;
         } else if (value > item.price_list_rate) {
-          item.discount_amount = 0;
+          // item.discount_amount = 0;
         }
       } else if (event.target.id === 'discount_amount') {
         if (value < 0) {
           item.discount_amount = 0;
           item.discount_percentage = 0;
         } else {
-          item.rate = flt(item.price_list_rate) - flt(value);
+          item.rate = (flt(item.price_list_rate) || flt(item.rate)) - flt(value);
           item.discount_percentage = 0;
         }
       } else if (event.target.id === 'discount_percentage') {
@@ -1628,11 +1630,11 @@ export default {
           item.discount_percentage = 0;
         } else {
           item.rate = (
-            flt(item.price_list_rate) -
-            (flt(item.price_list_rate) * flt(value)) / 100
+            (flt(item.price_list_rate) || flt(item.rate)) -
+            ((flt(item.price_list_rate) || flt(item.rate)) * flt(value)) / 100
           ).toFixed(this.currency_precision);
           item.discount_amount = (
-            flt(item.price_list_rate) - flt(item.rate)
+            (flt(item.price_list_rate) || flt(item.rate)) - flt(item.rate)
           ).toFixed(this.currency_precision);
         }
       }
