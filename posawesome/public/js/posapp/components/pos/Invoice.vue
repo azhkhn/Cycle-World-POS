@@ -173,7 +173,7 @@
                 background-color="white"
                 hide-details
                 v-model.number="item.qty"
-                type="number"
+                
                 @change="calc_sotck_gty(item, $event)"
                 :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
               ></v-text-field>
@@ -185,7 +185,6 @@
                 background-color="white"
                 hide-details
                 v-model.number="item.discount_percentage"
-                type="number"
                 @change="calc_prices(item, $event)"
                 id="discount_percentage"
                 :disabled="
@@ -206,7 +205,6 @@
                 background-color="white"
                 hide-details
                 v-model.number="item.discount_amount"
-                type="number"
                 :prefix="invoice_doc.currency"
                 @change="calc_prices(item, $event)"
                 id="discount_amount"
@@ -228,7 +226,6 @@
                 background-color="white"
                 hide-details
                 v-model.number="item.rate"
-                type="number"
                 :prefix="invoice_doc.currency"
                 @change="calc_prices(item, $event)"
                 id="rate"
@@ -310,7 +307,6 @@
                       background-color="white"
                       hide-details
                       v-model.number="item.qty"
-                      type="number"
                       @change="calc_sotck_gty(item, $event)"
                       :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
                     ></v-text-field>
@@ -344,7 +340,6 @@
                       background-color="white"
                       hide-details
                       v-model.number="item.rate"
-                      type="number"
                       :prefix="invoice_doc.currency"
                       @change="calc_prices(item, $event)"
                       id="rate"
@@ -368,7 +363,6 @@
                       background-color="white"
                       hide-details
                       v-model.number="item.discount_percentage"
-                      type="number"
                       @change="calc_prices(item, $event)"
                       id="discount_percentage"
                       :disabled="
@@ -391,7 +385,6 @@
                       background-color="white"
                       hide-details
                       v-model.number="item.discount_amount"
-                      type="number"
                       :prefix="invoice_doc.currency"
                       @change="calc_prices(item, $event)"
                       id="discount_amount"
@@ -688,7 +681,6 @@
                 dense
                 hide-details
                 color="warning"
-                type="number"
                 :prefix="pos_profile.currency"
                 :disabled="
                   !pos_profile.posa_allow_user_to_edit_additional_discount ||
@@ -711,7 +703,6 @@
                 dense
                 color="warning"
                 hide-details
-                type="number"
                 :disabled="
                   !pos_profile.posa_allow_user_to_edit_additional_discount ||
                   discount_percentage_offer_name
@@ -868,8 +859,8 @@ export default {
         },
         { text: __('QTY'), value: 'qty', align: 'center' },
         // { text: __('UOM'), value: 'uom', align: 'center' },
-        { text: __('Discount %'), value: 'discount_percentage', align: 'center' },
-        { text: __('Discount Amt'), value: 'discount_amount', align: 'center' },
+        // { text: __('Discount %'), value: 'discount_percentage', align: 'center' },
+        // { text: __('Discount Amt'), value: 'discount_amount', align: 'center' },
         { text: __('Rate'), value: 'rate', align: 'center' },
         { text: __('Amount'), value: 'amount', align: 'center' },
         // { text: __('is Offer'), value: 'posa_is_offer', align: 'center' },
@@ -1601,9 +1592,10 @@ export default {
       }
     },
 
-    calc_prices(item, value, $event) {
+        calc_prices(item, value, $event) {
+      console.log(item, value, $event, event)
       if (event.target.id === 'rate') {
-        item.discount_percentage = 0;
+        // item.discount_percentage = 0;
         if (value < item.price_list_rate) {
           item.discount_amount = (
             flt(item.price_list_rate) - flt(value)
@@ -1612,14 +1604,14 @@ export default {
           item.rate = item.price_list_rate;
           item.discount_amount = 0;
         } else if (value > item.price_list_rate) {
-          item.discount_amount = 0;
+          // item.discount_amount = 0;
         }
       } else if (event.target.id === 'discount_amount') {
         if (value < 0) {
           item.discount_amount = 0;
           item.discount_percentage = 0;
         } else {
-          item.rate = flt(item.price_list_rate) - flt(value);
+          item.rate = (flt(item.price_list_rate) || flt(item.rate)) - flt(value);
           item.discount_percentage = 0;
         }
       } else if (event.target.id === 'discount_percentage') {
@@ -1628,11 +1620,11 @@ export default {
           item.discount_percentage = 0;
         } else {
           item.rate = (
-            flt(item.price_list_rate) -
-            (flt(item.price_list_rate) * flt(value)) / 100
+            (flt(item.price_list_rate) || flt(item.rate)) -
+            ((flt(item.price_list_rate) || flt(item.rate)) * flt(value)) / 100
           ).toFixed(this.currency_precision);
           item.discount_amount = (
-            flt(item.price_list_rate) - flt(item.rate)
+            (flt(item.price_list_rate) || flt(item.rate)) - flt(item.rate)
           ).toFixed(this.currency_precision);
         }
       }

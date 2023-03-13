@@ -3,6 +3,7 @@
     <v-autocomplete
       dense
       clearable
+      autofocus
       auto-select-first
       outlined
       color="primary"
