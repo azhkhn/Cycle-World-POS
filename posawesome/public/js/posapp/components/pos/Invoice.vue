@@ -166,43 +166,6 @@
             :items-per-page="itemsPerPage"
             hide-default-footer
           >
-          <template v-slot:item.item_name="{ item }">
-            <v-autocomplete
-              dense
-              clearable
-              auto-select-first
-              outlined
-              color="primary"
-              :label="frappe._('Search Items')"
-              v-model="item"
-              :items="items_list_"
-              item-text="customer_name"
-              item-value="name"
-              background-color="white"
-              :no-data-text="__('Customer not found')"
-              hide-details
-              :filter="itemFilter"
-              :disabled="readonly"
-              @change="select_item"
-            >
-              
-            </v-autocomplete>
-              <!-- <v-text-field
-                dense
-                clearable
-                autofocus
-                outlined
-                color="primary"
-                :label="frappe._('Search Items')"
-                hint="Search by item code, serial number, batch no or barcode"
-                background-color="white"
-                hide-details
-                v-model="debounce_search"
-                @keydown.esc="esc_event"
-                @keydown.enter="enter_event"
-                ref="debounce_search"
-              ></v-text-field> -->
-            </template>
             <template v-slot:item.qty="{ item }">
               <v-text-field
                 dense
@@ -868,7 +831,6 @@ export default {
       additional_discount_percentage: 0,
       total_tax: 0,
       items: [],
-      items_list_:[],
       posOffers: [],
       posa_offers: [],
       posa_coupons: [],
@@ -888,7 +850,6 @@ export default {
       selcted_delivery_charges: {},
       invoice_posting_date: false,
       posting_date: frappe.datetime.nowdate(),
-      filtred_items:[],
       items_headers: [
         {
           text: __('Name'),
@@ -947,31 +908,6 @@ export default {
   },
 
   methods: {
-    itemFilter(item, queryText, itemText){
-      console.log(item, queryText, itemText)
-      this.splitted = queryText.split(' ');
-      var match = this.splitted.filter((txt)=>{
-                    return item.toLowerCase().includes(txt.toLowerCase())?true:false
-                  })
-
-      return  match.length == this.splitted.length
-                  
-    },
-    get_items(){
-      const vm = this;
-      frappe.call({
-        method:'posawesome.posawesome.api.posapp.get_all_items',
-        args:{
-          pos_profile:vm.pos_profile
-        },
-        callback(r){
-          vm.items_list_ = r.message
-        }
-      })
-    },
-    select_item(item){
-      console.log(item, this.item)
-    },
     remove_item(item) {
       const index = this.items.findIndex(
         (el) => el.posa_row_id == item.posa_row_id
@@ -1026,7 +962,7 @@ export default {
           item.to_set_serial_no = null;
         }
         this.items.unshift(new_item);
-        // this.update_item_detail(new_item);
+        this.update_item_detail(new_item);
       } else {
         const cur_item = this.items[index];
         this.update_items_details([cur_item]);
@@ -2625,7 +2561,6 @@ export default {
   },
 
   created() {
-
     evntBus.$on('register_pos_profile', (data) => {
       this.pos_profile = data.pos_profile;
       this.customer = data.pos_profile.customer;
@@ -2635,12 +2570,7 @@ export default {
         frappe.defaults.get_default('float_precision') || 2;
       this.currency_precision =
         frappe.defaults.get_default('currency_precision') || 2;
-        console.log(this.pos_profile)
-        this.new_item = this.get_new_item({})
-        this.add_item(this.new_item)
-        this.get_items()
     });
-    
     evntBus.$on('add_item', (item) => {
       this.add_item(item);
     });
