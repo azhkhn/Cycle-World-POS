@@ -353,7 +353,8 @@ def get_sales_person_names():
 def update_invoice(data):
     data = json.loads(data)
     if data.get("name"):
-        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+        del data['name']
+        invoice_doc = frappe.get_doc(data)
         invoice_doc.update(data)
     else:
         invoice_doc = frappe.get_doc(data)
@@ -396,6 +397,7 @@ def update_invoice(data):
                 tax.included_in_print_rate = 1
 
     invoice_doc.save()
+    # frappe.db.rollback()
     return invoice_doc
 
 
@@ -403,7 +405,11 @@ def update_invoice(data):
 def submit_invoice(invoice, data):
     data = json.loads(data)
     invoice = json.loads(invoice)
-    invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
+    if(frappe.db.exists("Sales Invoice", invoice.get("name"))):
+        invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
+    else:
+        del invoice['name']
+        invoice_doc = frappe.get_doc(invoice)
     invoice_doc.update(invoice)
     if invoice.get("posa_delivery_date"):
         invoice_doc.update_stock = 0
@@ -522,11 +528,15 @@ def submit_invoice(invoice, data):
                 },
             )
     else:
+        from posawesome.posawesome.api.invoice import create_sales_order
         invoice_doc.submit()
+        
         redeeming_customer_credit(
             invoice_doc, data, is_payment_entry, total_cash, cash_account
         )
-
+        # frappe.db.rollback()
+        # create_sales_order(invoice_doc)
+        # frappe.db.commit()
     return {"name": invoice_doc.name, "status": invoice_doc.docstatus}
 
 
@@ -844,36 +854,65 @@ def get_stock_availability(item_code, warehouse):
 
 
 @frappe.whitelist()
-def create_customer(
-    customer_name,
-    company,
-    tax_id,
-    mobile_no,
-    email_id,
-    referral_code=None,
-    birthday=None,
-    customer_group=None,
-    territory=None,
-):
+def create_customer(**args):
     # if not frappe.db.exists("Customer", {"customer_name": customer_name}):
     customer = frappe.get_doc(
         {
             "doctype": "Customer",
-            "customer_name": customer_name,
-            "posa_referral_company": company,
-            "tax_id": tax_id,
-            "mobile_no": mobile_no,
-            "email_id": email_id,
-            "posa_referral_code": referral_code,
-            "posa_birthday": birthday,
+            "customer_name": args.get('customer_name'),
+            "posa_referral_company": args.get("company"),
+            "mobile_no": args.get("mobile_no"),
+            "email_id": args.get("email_id"),
+            "posa_birthday": args.get("birthday"),
         }
     )
-    if customer_group:
-        customer.customer_group = customer_group
-    if territory:
-        customer.territory = territory
+    if args.get("customer_group"):
+        customer.customer_group = args.get("customer_group")
+    if ("territory"):
+        customer.territory = args.get("territory")
     customer.save(ignore_permissions=True)
-    return customer
+    customer.reload()
+    add_created = create_address(args, customer)
+    return customer if add_created else 'Fail'
+
+def create_address(args, customer):
+    if(args.get('address_line1') and args.get('city')):
+        address = frappe.new_doc('Address')
+        address.update({
+            'address_line1':args.get('address_line1'),
+            'address_line2':args.get('address_line2'),
+            'city':args.get('city'),
+            'state':args.get('state'),
+            'gst_state':args.get('gst_state'),
+            'gst_state_number':args.get('gst_state_number'),
+            'pincode':args.get('pincode'),
+            'gstin':args.get('gstin'),
+            'email_id':args.get('email_id'),
+            'phone':args.get('mobile_no')
+        })
+        address.flags.ignore_permissions = True
+        address.flags.ignore_mandatory = True
+        links = [
+            {
+            'link_doctype':'Customer',
+            'link_name':customer.name
+            }
+        ]
+        address.update({
+            'links':links
+        })
+        try:
+            address.save()
+            customer.reload()
+            customer.update({
+                'customer_primary_address':address.name
+            })
+            customer.save(ignore_permissions=True)
+        except:
+            customer.delete()
+            return False
+    return True
+    
 
 
 @frappe.whitelist()
@@ -946,22 +985,77 @@ def get_items_from_barcode(selling_price_list, currency, barcode):
 
 
 @frappe.whitelist()
-def set_customer_info(fieldname, customer, value=""):
+def set_customer_info(fieldname, customer, value="", customer_info = {}):
+    if isinstance(customer_info, str):
+        customer_info = json.loads(customer_info)
     if fieldname == "loyalty_program":
         frappe.db.set_value("Customer", customer, "loyalty_program", value)
 
     contact = (
         frappe.get_cached_value("Customer", customer, "customer_primary_contact") or ""
     )
+    address_fields = ['address_line1', 'address_line2', 'city', 
+                      'state', 'gst_state', 'gst_state_number', 
+                      'pincode', 'gstin', 'mobile_no', 'phone', 'email_id']
+    
+    address = {}
+    customer_doc = frappe.get_doc('Customer', customer)
+    if(customer_doc.get('customer_primary_address')):
+        address = customer_doc.get('customer_primary_address')
+    elif(frappe.db.get_value('Dynamic Link', {'parenttype':'Address', 'link_name':customer_doc.name, 'link_doctype':'Customer'}, 'parent')):
+        address = frappe.db.get_value('Dynamic Link', {'parenttype':'Address', 'link_name':customer_doc.name, 'link_doctype':'Customer'}, 'parent')
+    if(address):
+        address = frappe.get_doc('Address', address)
+    if not address and customer_info.get('address_line1') and customer_info.get('city'):
+        address = frappe.new_doc('Address')
+        links = [
+            {
+            'link_doctype':'Customer',
+            'link_name':customer
+            }
+        ]
+        address.update({
+            'links' : links,
+            'address_line1' : customer_info.get('address_line1'),
+            'city' : customer_info.get('city')
+        })
 
+    if(fieldname in address_fields and address):
+        if(fieldname in ['address_line1', 'city'] and not value):
+            frappe.msgprint('Address and City is Mandatory.')
+            return fieldname
+        if(fieldname == 'mobile_no'):fieldname='phone'
+        address.update({
+            fieldname:value
+        })
+        if(fieldname == 'phone'):fieldname='mobile_no'
+        address.save(ignore_permissions = True)
+        customer_doc.reload()
+        customer_doc.update({
+            'customer_primary_address':address.name
+        })
+        customer_doc.save(ignore_permissions=True)
+        customer_doc.reload()
+
+
+
+    if fieldname == "customer_name":
+        frappe.db.set_value('Customer', customer, fieldname, value)
     if contact:
         contact_doc = frappe.get_doc("Contact", contact)
         if fieldname == "email_id":
             contact_doc.set("email_ids", [{"email_id": value, "is_primary": 1}])
             frappe.db.set_value("Customer", customer, "email_id", value)
         elif fieldname == "mobile_no":
-            contact_doc.set("phone_nos", [{"phone": value, "is_primary_mobile_no": 1}])
-            frappe.db.set_value("Customer", customer, "mobile_no", value)
+            if(value):
+                contact_doc.set("phone_nos", [{"phone": value, "is_primary_mobile_no": 1}])
+            else:
+                contact_doc.set("phone_nos",[])
+            if not frappe.db.exists('Customer',{'mobile_no':value, 'name':['!=', customer]}):
+                frappe.db.set_value("Customer", customer, "mobile_no", value)
+            else:
+                cust = frappe.db.get_value("Customer", {'mobile_no':value}, 'customer_name')
+                frappe.msgprint(f'Mobile No already exist for Customer: {cust}')
         contact_doc.save()
 
     else:
@@ -1421,7 +1515,13 @@ def get_active_gift_coupons(customer, company):
 @frappe.whitelist()
 def get_customer_info(customer):
     customer = frappe.get_doc("Customer", customer)
-
+    address = {}
+    if(customer.get('customer_primary_address')):
+        address = customer.get('customer_primary_address')
+    elif(frappe.db.get_value('Dynamic Link', {'parenttype':'Address', 'link_name':customer.name, 'link_doctype':'Customer'}, 'parent')):
+        address = frappe.db.get_value('Dynamic Link', {'parenttype':'Address', 'link_name':customer.name, 'link_doctype':'Customer'}, 'parent')
+    if(address):
+        address = frappe.get_doc('Address', address)
     res = {"loyalty_points": None, "conversion_factor": None}
 
     res["email_id"] = customer.email_id
@@ -1433,6 +1533,17 @@ def get_customer_info(customer):
     res["posa_discount"] = customer.posa_discount
     res["name"] = customer.name
     res["customer_name"] = customer.customer_name
+
+    res['address_line1'] = address.get('address_line1')
+    res['address_line2'] = address.get('address_line2')
+    res['city'] = address.get('city')
+    res['state'] = address.get('state')
+    res['gst_state'] = address.get('gst_state')
+    res['pincode'] = address.get('pincode')
+    res['email_id'] = address.get('email_id')
+    res['gstin'] = address.get('gstin')
+    res['gst_state_number'] = address.get('gst_state_number')
+
     res["customer_group_price_list"] = frappe.get_value(
         "Customer Group", customer.customer_group, "default_price_list"
     )

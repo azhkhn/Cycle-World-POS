@@ -15,5 +15,22 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Sales Order",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "posa_pos_opening_shift",
+  "modified": "2023-03-14 11:00:29.267972",
+  "name": "Sales Order-posa_pos_opening_shift-no_copy",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "no_copy",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]

@@ -43,7 +43,7 @@
           <v-text-field
             dense
             clearable
-            autofocus
+            
             outlined
             color="primary"
             :label="frappe._('Search Items')"
@@ -510,7 +510,7 @@ export default {
           this.splitted = this.search.split(' ');
           filtred_list = filtred_group_list.filter((item)=>{
                   var match = this.splitted.filter((txt)=>{
-                    return item.item_name.toLowerCase().includes(txt.toLowerCase())?true:false
+                    return (item.item_name || item.item_code || "").toLowerCase().includes(txt.toLowerCase())?true:false
                   })
                   if(!match.includes(false) && match.length){
                   }

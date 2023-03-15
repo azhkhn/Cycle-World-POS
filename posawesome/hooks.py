@@ -235,12 +235,17 @@ fixtures = [
                     "POS Profile-posa_use_delivery_charges",
                     "POS Profile-hide_expected_amount",
                     "POS Profile-posa_allow_change_posting_date",
+                    "Sales Order-posa_is_printed",
+                    "Sales Order-posa_pos_opening_shift",
+                    "Sales Order-posa_delivery_charges_rate",
+                    "Sales Order-posa_delivery_charges",
+                    
                 ),
             ]
         ],
     },
     {
         "doctype": "Property Setter",
-        "filters": [["name", "in", ("Sales Invoice-posa_pos_opening_shift-no_copy")]],
+        "filters": [["name", "in", ("Sales Invoice-posa_pos_opening_shift-no_copy", "Sales Order-posa_pos_opening_shift-no_copy")]],
     },
 ]
