@@ -9,13 +9,13 @@
     <MpesaPayments></MpesaPayments>
     <Variants></Variants>
     <OpeningDialog v-if="dialog" :dialog="dialog"></OpeningDialog>
-    <v-row v-show="!dialog"  style="padding-left:5%;padding-right:5%">
+    <v-row v-show="!dialog">
       <v-col
         v-show="!payment && !offers && !coupons"
-        xl="2.5"
-        lg="2.5"
-        md="2.5"
-        sm="2.5"
+        xl="5"
+        lg="5"
+        md="5"
+        sm="5"
         cols="12"
         class="pos pr-0"
       >
@@ -45,25 +45,17 @@
       </v-col>
       <v-col
         v-show="payment"
-        xl="2.5"
-        lg="2.5"
-        md="2.5"
-        sm="2.5"
+        xl="5"
+        lg="5"
+        md="5"
+        sm="5"
         cols="12"
-        style="max-width:100vh;margin:auto;"
         class="pos pr-0"
       >
         <Payments></Payments>
       </v-col>
 
-      <v-col
-      v-show="!payment && !offers && !coupons" 
-        xl="2.5"
-        lg="2.5"
-        md="2.5"
-        sm="2.5"
-        cols="12"
-        class="">
+      <v-col xl="7" lg="7" md="7" sm="7" cols="12" class="pos">
         <Invoice></Invoice>
       </v-col>
     </v-row>
