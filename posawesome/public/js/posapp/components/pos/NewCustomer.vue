@@ -8,7 +8,7 @@
         <v-card-text class="pa-0">
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="6">
                 <v-text-field
                   dense
                   color="primary"
@@ -16,16 +16,6 @@
                   background-color="white"
                   hide-details
                   v-model="customer_name"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  dense
-                  color="primary"
-                  :label="frappe._('Tax ID')"
-                  background-color="white"
-                  hide-details
-                  v-model="tax_id"
                 ></v-text-field>
               </v-col>
               <v-col cols="6">
@@ -42,6 +32,18 @@
                 <v-text-field
                   dense
                   color="primary"
+                  :label="frappe._('GSTIN')"
+                  background-color="white"
+                  hide-details
+                  v-model="gstin"
+                  @change="gstin_onchange()"
+                ></v-text-field>
+              </v-col>
+              
+              <v-col cols="6">
+                <v-text-field
+                  dense
+                  color="primary"
                   :label="frappe._('Email Id')"
                   background-color="white"
                   hide-details
@@ -52,10 +54,67 @@
                 <v-text-field
                   dense
                   color="primary"
-                  :label="frappe._('Referral Code')"
+                  :label="frappe._('Address Line 1')"
                   background-color="white"
                   hide-details
-                  v-model="referral_code"
+                  v-model="address_line1"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  dense
+                  color="primary"
+                  :label="frappe._('Address Line 2')"
+                  background-color="white"
+                  hide-details
+                  v-model="address_line2"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  dense
+                  color="primary"
+                  :label="frappe._('City')"
+                  background-color="white"
+                  hide-details
+                  v-model="city"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-autocomplete
+                  clearable
+                  dense
+                  auto-select-first
+                  color="primary"
+                  :label="frappe._('GST State')"
+                  v-model="gst_state"
+                  :items="states"
+                  background-color="white"
+                  :no-data-text="__('State not found')"
+                  hide-details
+                  @change="gst_state_onchange()"
+                >
+                </v-autocomplete>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  dense
+                  color="primary"
+                  :label="frappe._('GST State Number')"
+                  background-color="white"
+                  hide-details
+                  v-model="gst_state_number"
+                  :disabled = "true"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  dense
+                  color="primary"
+                  :label="frappe._('Postal Code')"
+                  background-color="white"
+                  hide-details
+                  v-model="pincode"
                 ></v-text-field>
               </v-col>
               <v-col cols="6">
@@ -144,7 +203,7 @@ export default {
     customerDialog: false,
     pos_profile: '',
     customer_name: '',
-    tax_id: '',
+    gstin: '',
     mobile_no: '',
     email_id: '',
     referral_code: '',
@@ -153,11 +212,106 @@ export default {
     group: '',
     groups: [],
     territory: '',
+    address_line1:'',
+    address_line2:'',
+    city:'',
+    state:'',
+    gst_state_number:'',
+    pincode:'',
     territorys: [],
     regex : /^\d+$/,
+    states:[
+        'Andaman and Nicobar Islands',
+        'Andhra Pradesh',
+        'Arunachal Pradesh',
+        'Assam',
+        'Bihar',
+        'Chandigarh',
+        'Chhattisgarh',
+        'Dadra and Nagar Haveli and Daman and Diu',
+        'Delhi',
+        'Goa',
+        'Gujarat',
+        'Haryana',
+        'Himachal Pradesh',
+        'Jammu and Kashmir',
+        'Jharkhand',
+        'Karnataka',
+        'Kerala',
+        'Ladakh',
+        'Lakshadweep Islands',
+        'Madhya Pradesh',
+        'Maharashtra',
+        'Manipur',
+        'Meghalaya',
+        'Mizoram',
+        'Nagaland',
+        'Odisha',
+        'Other Territory',
+        'Pondicherry',
+        'Punjab',
+        'Rajasthan',
+        'Sikkim',
+        'Tamil Nadu',
+        'Telangana',
+        'Tripura',
+        'Uttar Pradesh',
+        'Uttarakhand',
+        'West Bengal',
+        ],
+    state_numbers : {
+        "Andaman and Nicobar Islands": "35",
+        "Andhra Pradesh": "37",
+        "Arunachal Pradesh": "12",
+        "Assam": "18",
+        "Bihar": "10",
+        "Chandigarh": "04",
+        "Chhattisgarh": "22",
+        "Dadra and Nagar Haveli and Daman and Diu": "26",
+        "Delhi": "07",
+        "Goa": "30",
+        "Gujarat": "24",
+        "Haryana": "06",
+        "Himachal Pradesh": "02",
+        "Jammu and Kashmir": "01",
+        "Jharkhand": "20",
+        "Karnataka": "29",
+        "Kerala": "32",
+        "Ladakh": "38",
+        "Lakshadweep Islands": "31",
+        "Madhya Pradesh": "23",
+        "Maharashtra": "27",
+        "Manipur": "14",
+        "Meghalaya": "17",
+        "Mizoram": "15",
+        "Nagaland": "13",
+        "Odisha": "21",
+        "Other Territory": "97",
+        "Pondicherry": "34",
+        "Punjab": "03",
+        "Rajasthan": "08",
+        "Sikkim": "11",
+        "Tamil Nadu": "33",
+        "Telangana": "36",
+        "Tripura": "16",
+        "Uttar Pradesh": "09",
+        "Uttarakhand": "05",
+        "West Bengal": "19",
+       },
   }),
   watch: {},
   methods: {
+    gst_state_onchange(){
+      if(this.gst_state){
+        this.gst_state_number = this.state_numbers[this.gst_state]
+      }
+      else{
+        this.gst_state_number = ''
+      }
+    },
+    gstin_onchange(){
+      this.gst_state_number = this.gstin.slice(0, 2)
+    },
     close_dialog() {
       this.customerDialog = false;
     },
@@ -199,13 +353,19 @@ export default {
         const args = {
           customer_name: this.customer_name,
           company: this.pos_profile.company,
-          tax_id: this.tax_id,
+          gstin: this.gstin,
           mobile_no: this.mobile_no,
           email_id: this.email_id,
           referral_code: this.referral_code,
           birthday: this.birthday,
           customer_group: this.group,
           territory: this.territory,
+          address_line1:this.address_line1,
+          address_line2:this.address_line2,
+          city:this.city,
+          state:this.gst_state,
+          gst_state_number:this.gst_state_number,
+          pincode:this.pincode
         };
         frappe.call({
           method: 'posawesome.posawesome.api.posapp.create_customer',
@@ -221,17 +381,28 @@ export default {
               evntBus.$emit('add_customer_to_list', args);
               evntBus.$emit('set_customer', r.message.name);
               vm.customer_name = '';
-              vm.tax_id = '';
+              vm.gstin = '';
               vm.mobile_no = '';
               vm.email_id = '';
               vm.referral_code = '';
               vm.birthday = '';
               vm.group = '';
+              vm.address_line1 = '';
+              vm.address_line2 = '';
+              vm.city = '';
+              vm.state = '';
+              vm.gst_state = '';
+              vm.gst_state_number = '';
+              vm.pincode = '';
+              vm.territory = '';
               vm.customerDialog = false;
+            }
+            else{
+              vm.customerDialog = true;
             }
           },
         });
-        this.customerDialog = false;
+        // this.customerDialog = false;
       }
     },
   },

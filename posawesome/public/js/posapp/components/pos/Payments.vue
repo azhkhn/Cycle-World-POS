@@ -790,13 +790,7 @@ export default {
       }
 
       this.submit_invoice();
-      this.customer_credit_dict = [];
-      this.redeem_customer_credit = false;
-      this.is_cashback = true;
-      this.sales_person = '';
-
-      evntBus.$emit('new_invoice', 'false');
-      this.back_to_invoice();
+      
     },
     submit_invoice() {
       let data = {};
@@ -825,6 +819,14 @@ export default {
             });
             frappe.utils.play_sound('submit');
             this.addresses = [];
+
+            vm.customer_credit_dict = [];
+            vm.redeem_customer_credit = false;
+            vm.is_cashback = true;
+            vm.sales_person = '';
+
+            evntBus.$emit('new_invoice', 'false');
+            vm.back_to_invoice();
           }
         },
       });

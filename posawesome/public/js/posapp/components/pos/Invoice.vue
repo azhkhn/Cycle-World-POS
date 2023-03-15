@@ -1593,7 +1593,6 @@ export default {
     },
 
         calc_prices(item, value, $event) {
-      console.log(item, value, $event, event)
       if (event.target.id === 'rate') {
         // item.discount_percentage = 0;
         if (value < item.price_list_rate) {

@@ -142,6 +142,9 @@ export default {
       evntBus.$on('set_customer_readonly', (value) => {
         this.readonly = value;
       });
+      evntBus.$on('update_customer_list', () => {
+        this.get_customer_names();
+      });
     });
   },
 
