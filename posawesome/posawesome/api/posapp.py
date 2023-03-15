@@ -118,6 +118,12 @@ def update_opening_shift_data(data, pos_profile):
 
 
 @frappe.whitelist()
+def get_all_items(pos_profile):
+    pos_profile = json.loads(pos_profile)
+    return frappe.get_all('Item', filters={'disabled':0, 'has_variants':0}, pluck='name')
+
+
+@frappe.whitelist()
 def get_items(pos_profile, price_list=None):
     pos_profile = json.loads(pos_profile)
     if not price_list:
