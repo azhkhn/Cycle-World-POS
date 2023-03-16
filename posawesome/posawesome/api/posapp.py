@@ -347,8 +347,8 @@ def get_sales_person_names():
 def update_invoice(data):
     data = json.loads(data)
     if data.get("name"):
-        del data['name']
-        invoice_doc = frappe.get_doc(data)
+        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+
         invoice_doc.update(data)
     else:
         invoice_doc = frappe.get_doc(data)
@@ -399,11 +399,7 @@ def update_invoice(data):
 def submit_invoice(invoice, data):
     data = json.loads(data)
     invoice = json.loads(invoice)
-    if(frappe.db.exists("Sales Invoice", invoice.get("name"))):
-        invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
-    else:
-        del invoice['name']
-        invoice_doc = frappe.get_doc(invoice)
+    invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
     invoice_doc.update(invoice)
     if invoice.get("posa_delivery_date"):
         invoice_doc.update_stock = 0
