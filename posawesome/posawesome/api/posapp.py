@@ -873,6 +873,8 @@ def create_address(args, customer):
     if(args.get('address_line1') and args.get('city')):
         address = frappe.new_doc('Address')
         address.update({
+            'is_primary_address':1,
+            'is_shipping_address':1,
             'address_line1':args.get('address_line1'),
             'address_line2':args.get('address_line2'),
             'city':args.get('city'),
@@ -990,7 +992,7 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
     )
     address_fields = ['address_line1', 'address_line2', 'city', 
                       'state', 'gst_state', 'gst_state_number', 
-                      'pincode', 'gstin', 'mobile_no', 'phone', 'email_id']
+                      'pincode', 'gstin', 'mobile_no', 'email_id']
     
     address = {}
     customer_doc = frappe.get_doc('Customer', customer)
@@ -1011,19 +1013,31 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
         address.update({
             'links' : links,
             'address_line1' : customer_info.get('address_line1'),
-            'city' : customer_info.get('city')
+            'city' : customer_info.get('city'),
+            'is_primary_address':1,
+            'is_shipping_address':1,
         })
-
-    if(fieldname in address_fields and address):
-        if(fieldname in ['address_line1', 'city'] and not value):
-            frappe.msgprint('Address and City is Mandatory.')
-            return fieldname
-        if(fieldname == 'mobile_no'):fieldname='phone'
-        address.update({
-            fieldname:value
-        })
-        if(fieldname == 'phone'):fieldname='mobile_no'
+    for i in address_fields:
+        if(fieldname in address_fields and address):
+            if(fieldname in ['address_line1', 'city'] and not value):
+                frappe.msgprint('Address and City is Mandatory.')
+                return fieldname
+            frappe.errprint(i if(i != 'mobile_no') else 'phone')
+            frappe.errprint(customer_info.get(i))
+            field = i
+            if(i == 'mobile_no'):field='phone'
+            frappe.errprint(f"{field} : {customer_info.get(i)}")
+            address.update({
+                
+                field:customer_info.get(i)
+            })
+            frappe.errprint("address.get('phone')")
+            frappe.errprint(address.get('phone'))
+    if(fieldname == 'phone'):fieldname='mobile_no'
+    if(customer_info.get('address_line1') and customer_info.get('city')):
         address.save(ignore_permissions = True)
+        frappe.errprint(address.get('phone'))
+        frappe.errprint("address.get('phone')")
         customer_doc.reload()
         customer_doc.update({
             'customer_primary_address':address.name
