@@ -1592,9 +1592,9 @@ export default {
       }
     },
 
-        calc_prices(item, value, $event) {
+    calc_prices(item, value, $event) {
       if (event.target.id === 'rate') {
-        // item.discount_percentage = 0;
+        item.discount_percentage = 0;
         if (value < item.price_list_rate) {
           item.discount_amount = (
             flt(item.price_list_rate) - flt(value)
@@ -1603,14 +1603,14 @@ export default {
           item.rate = item.price_list_rate;
           item.discount_amount = 0;
         } else if (value > item.price_list_rate) {
-          // item.discount_amount = 0;
+          item.discount_amount = 0;
         }
       } else if (event.target.id === 'discount_amount') {
         if (value < 0) {
           item.discount_amount = 0;
           item.discount_percentage = 0;
         } else {
-          item.rate = (flt(item.price_list_rate) || flt(item.rate)) - flt(value);
+          item.rate = flt(item.price_list_rate) - flt(value);
           item.discount_percentage = 0;
         }
       } else if (event.target.id === 'discount_percentage') {
@@ -1619,11 +1619,11 @@ export default {
           item.discount_percentage = 0;
         } else {
           item.rate = (
-            (flt(item.price_list_rate) || flt(item.rate)) -
-            ((flt(item.price_list_rate) || flt(item.rate)) * flt(value)) / 100
+            flt(item.price_list_rate) -
+            (flt(item.price_list_rate) * flt(value)) / 100
           ).toFixed(this.currency_precision);
           item.discount_amount = (
-            (flt(item.price_list_rate) || flt(item.rate)) - flt(item.rate)
+            flt(item.price_list_rate) - flt(item.rate)
           ).toFixed(this.currency_precision);
         }
       }

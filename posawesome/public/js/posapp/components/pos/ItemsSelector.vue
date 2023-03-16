@@ -530,9 +530,9 @@ export default {
         this.pos_profile.posa_show_template_items &&
         this.pos_profile.posa_hide_variants_items
       ) {
-        return filtred_list.filter((item) => !item.variant_of);
+        return filtred_list.filter((item) => !item.variant_of).slice(0, 50);
       } else {
-        return filtred_list;
+        return filtred_list.slice(0, 50);
       }
     },
     debounce_search: {
