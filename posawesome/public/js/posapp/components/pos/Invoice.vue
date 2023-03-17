@@ -311,7 +311,7 @@
                       :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="4">
+                  <!-- <v-col cols="4">
                     <v-select
                       dense
                       background-color="white"
@@ -330,7 +330,7 @@
                       "
                     >
                     </v-select>
-                  </v-col>
+                  </v-col> -->
                   <v-col cols="4">
                     <v-text-field
                       dense
@@ -354,7 +354,7 @@
                       "
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="4">
+                  <!-- <v-col cols="4">
                     <v-text-field
                       dense
                       outlined
@@ -375,30 +375,8 @@
                           : false
                       "
                     ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('Discount Amount')"
-                      background-color="white"
-                      hide-details
-                      v-model.number="item.discount_amount"
-                      :prefix="invoice_doc.currency"
-                      @change="calc_prices(item, $event)"
-                      id="discount_amount"
-                      :disabled="
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
-                        !!item.posa_offer_applied ||
-                        !pos_profile.posa_allow_user_to_edit_item_discount ||
-                        !!invoice_doc.is_return
-                          ? true
-                          : false
-                      "
-                    ></v-text-field>
-                  </v-col>
+                  </v-col> -->
+                 
                   <v-col cols="4">
                     <v-text-field
                       dense
@@ -438,7 +416,7 @@
                       disabled
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="4">
+                  <!-- <v-col cols="4">
                     <v-text-field
                       dense
                       outlined
@@ -450,8 +428,8 @@
                       type="number"
                       disabled
                     ></v-text-field>
-                  </v-col>
-                  <v-col cols="4">
+                  </v-col> -->
+                  <!-- <v-col cols="4">
                     <v-text-field
                       dense
                       outlined
@@ -462,7 +440,7 @@
                       v-model="item.stock_uom"
                       disabled
                     ></v-text-field>
-                  </v-col>
+                  </v-col> -->
                   <v-col align="center" cols="4" v-if="item.posa_offer_applied">
                     <v-checkbox
                       dense
@@ -646,6 +624,29 @@
                       :value="item.posa_notes"
                     ></v-textarea>
                   </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      dense
+                      outlined
+                      color="primary"
+                      :label="frappe._('Exchange Rate')"
+                      background-color="white"
+                      hide-details
+                      v-model.number="item.discount_amount"
+                      :prefix="invoice_doc.currency"
+                      @change="calc_prices(item, $event)"
+                      id="discount_amount"
+                      :disabled="
+                        !!item.posa_is_offer ||
+                        !!item.posa_is_replace ||
+                        !!item.posa_offer_applied ||
+                        !pos_profile.posa_allow_user_to_edit_item_discount ||
+                        !!invoice_doc.is_return
+                          ? true
+                          : false
+                      "
+                    ></v-text-field>
+                  </v-col>
                 </v-row>
               </td>
             </template>
@@ -715,7 +716,7 @@
             <v-col cols="6" class="pa-1 mt-2">
               <v-text-field
                 :value="formtCurrency(total_items_discount_amount)"
-                :label="frappe._('Items Discounts')"
+                :label="frappe._('Total Exchange Rate')"
                 outlined
                 dense
                 color="warning"
@@ -901,7 +902,8 @@ export default {
     total_items_discount_amount() {
       let sum = 0;
       this.items.forEach((item) => {
-        sum += item.qty * item.discount_amount;
+        // sum += item.qty * item.discount_amount;
+        sum += item.discount_amount;
       });
       return flt(sum).toFixed(this.float_precision);
     },
