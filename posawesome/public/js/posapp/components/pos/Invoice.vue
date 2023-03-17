@@ -336,7 +336,7 @@
                       dense
                       outlined
                       color="primary"
-                      :label="frappe._('Rate')"
+                      :label="frappe._('Rate/Qty')"
                       background-color="white"
                       hide-details
                       v-model.number="item.rate"
@@ -376,7 +376,29 @@
                       "
                     ></v-text-field>
                   </v-col> -->
-                 
+                  <!-- <v-col cols="4">
+                    <v-text-field
+                      dense
+                      outlined
+                      color="primary"
+                      :label="frappe._('Discount Amount')"
+                      background-color="white"
+                      hide-details
+                      v-model.number="item.discount_amount"
+                      :prefix="invoice_doc.currency"
+                      @change="calc_prices(item, $event)"
+                      id="discount_amount"
+                      :disabled="
+                        !!item.posa_is_offer ||
+                        !!item.posa_is_replace ||
+                        !!item.posa_offer_applied ||
+                        !pos_profile.posa_allow_user_to_edit_item_discount ||
+                        !!invoice_doc.is_return
+                          ? true
+                          : false
+                      "
+                    ></v-text-field>
+                  </v-col> -->
                   <v-col cols="4">
                     <v-text-field
                       dense
@@ -624,29 +646,6 @@
                       :value="item.posa_notes"
                     ></v-textarea>
                   </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                      dense
-                      outlined
-                      color="primary"
-                      :label="frappe._('Exchange Rate')"
-                      background-color="white"
-                      hide-details
-                      v-model.number="item.discount_amount"
-                      :prefix="invoice_doc.currency"
-                      @change="calc_prices(item, $event)"
-                      id="discount_amount"
-                      :disabled="
-                        !!item.posa_is_offer ||
-                        !!item.posa_is_replace ||
-                        !!item.posa_offer_applied ||
-                        !pos_profile.posa_allow_user_to_edit_item_discount ||
-                        !!invoice_doc.is_return
-                          ? true
-                          : false
-                      "
-                    ></v-text-field>
-                  </v-col>
                 </v-row>
               </td>
             </template>
@@ -716,7 +715,7 @@
             <v-col cols="6" class="pa-1 mt-2">
               <v-text-field
                 :value="formtCurrency(total_items_discount_amount)"
-                :label="frappe._('Total Exchange Rate')"
+                :label="frappe._('Items Discount Amount')"
                 outlined
                 dense
                 color="warning"
@@ -1530,8 +1529,8 @@ export default {
             item.actual_qty = data.actual_qty;
             item.stock_uom = data.stock_uom;
             (item.has_serial_no = data.has_serial_no),
-              (item.has_batch_no = data.has_batch_no),
-              vm.calc_item_price(item);
+              (item.has_batch_no = data.has_batch_no)
+              // vm.calc_item_price(item);
           }
         },
       });
@@ -1612,7 +1611,7 @@ export default {
           item.discount_amount = 0;
           item.discount_percentage = 0;
         } else {
-          item.rate = flt(item.price_list_rate) - flt(value);
+          // item.rate = flt(item.price_list_rate) - flt(value);
           item.discount_percentage = 0;
         }
       } else if (event.target.id === 'discount_percentage') {
@@ -2638,6 +2637,7 @@ export default {
       evntBus.$emit('set_customer_info_to_edit', this.customer_info);
     },
     expanded(data_value) {
+      console.log('expand', data_value)
       this.update_items_details(data_value);
       if (data_value.length > 0) {
         this.update_item_detail(data_value[0]);
