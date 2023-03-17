@@ -1596,9 +1596,9 @@ export default {
       if (event.target.id === 'rate') {
         item.discount_percentage = 0;
         if (value < item.price_list_rate) {
-          item.discount_amount = (
-            flt(item.price_list_rate) - flt(value)
-          ).toFixed(this.currency_precision);
+          // item.discount_amount = (
+          //   flt(item.price_list_rate) - flt(value)
+          // ).toFixed(this.currency_precision);
         } else if (value < 0) {
           item.rate = item.price_list_rate;
           item.discount_amount = 0;
