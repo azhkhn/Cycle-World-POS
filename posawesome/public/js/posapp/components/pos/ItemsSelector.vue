@@ -2,7 +2,7 @@
   <div>
     <v-card
       class="selection mx-auto grey lighten-5"
-      style="max-height: 75vh; height: 75vh"
+      style="max-height: 87.5vh; height: 87.5vh"
     >
       <v-progress-linear
         :active="loading"
@@ -55,6 +55,16 @@
             @keydown.enter="enter_event"
             ref="debounce_search"
           ></v-text-field>
+        </v-col>
+        <v-col cols="6">
+          <v-select
+            :items="items_group"
+            :label="frappe._('Items Group')"
+            dense
+            outlined
+            hide-details
+            v-model="item_group"
+          ></v-select>
         </v-col>
         <v-col cols="3" class="pb-0 mb-2" v-if="pos_profile.posa_input_qty">
           <v-text-field
@@ -119,7 +129,7 @@
             </v-row>
           </div>
           <div fluid class="items" v-if="items_view == 'list'">
-            <div class="my-0 py-0 overflow-y-auto" style="max-height: 65vh">
+            <div class="my-0 py-0 overflow-y-auto" style="max-height: 74vh">
               <template>
                 <v-data-table
                   :headers="getItmesHeaders()"
@@ -143,19 +153,10 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-card class="cards mb-0 mt-3 pa-2 grey lighten-5">
-      <v-row no-gutters align="center" justify="center">
-        <v-col cols="12">
-          <v-select
-            :items="items_group"
-            :label="frappe._('Items Group')"
-            dense
-            outlined
-            hide-details
-            v-model="item_group"
-          ></v-select>
-        </v-col>
-        <v-col cols="3" class="mt-1">
+    <!-- <v-card class="cards mb-0 mt-3 pa-2 grey lighten-5">
+      <v-row no-gutters align="center" justify="center"> -->
+        
+        <!-- <v-col cols="3" class="mt-1">
           <v-btn-toggle
             v-model="items_view"
             color="primary"
@@ -177,9 +178,9 @@
             >{{ offersCount }} {{ __('Offers') }} : {{ appliedOffersCount }}
             {{ __('Applied') }}</v-btn
           >
-        </v-col>
-      </v-row>
-    </v-card>
+        </v-col> -->
+      <!-- </v-row>
+    </v-card> -->
   </div>
 </template>
 

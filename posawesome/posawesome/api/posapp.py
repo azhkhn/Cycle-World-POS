@@ -1018,22 +1018,15 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
             if(fieldname in ['address_line1', 'city'] and not value):
                 frappe.msgprint('Address and City is Mandatory.')
                 return fieldname
-            frappe.errprint(i if(i != 'mobile_no') else 'phone')
-            frappe.errprint(customer_info.get(i))
             field = i
             if(i == 'mobile_no'):field='phone'
-            frappe.errprint(f"{field} : {customer_info.get(i)}")
             address.update({
                 
                 field:customer_info.get(i)
             })
-            frappe.errprint("address.get('phone')")
-            frappe.errprint(address.get('phone'))
     if(fieldname == 'phone'):fieldname='mobile_no'
     if(customer_info.get('address_line1') and customer_info.get('city')):
         address.save(ignore_permissions = True)
-        frappe.errprint(address.get('phone'))
-        frappe.errprint("address.get('phone')")
         customer_doc.reload()
         customer_doc.update({
             'customer_primary_address':address.name
