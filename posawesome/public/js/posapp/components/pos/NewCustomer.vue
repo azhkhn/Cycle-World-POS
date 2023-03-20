@@ -176,6 +176,8 @@
                   background-color="white"
                   :no-data-text="__('Territory not found')"
                   hide-details
+                  append-icon="mdi-plus"
+                  @click:append="new_territory"
                 >
                 </v-autocomplete>
               </v-col>
@@ -315,6 +317,9 @@ export default {
     close_dialog() {
       this.customerDialog = false;
     },
+    new_territory(){
+      evntBus.$emit('open_new_territory')
+    },
     getCustomerGroups() {
       if (this.groups.length > 0) return;
       const vm = this;
@@ -322,6 +327,7 @@ export default {
         .get_list('Customer Group', {
           fields: ['name'],
           page_length: 1000,
+          
         })
         .then((data) => {
           if (data.length > 0) {
@@ -338,6 +344,7 @@ export default {
         .get_list('Territory', {
           fields: ['name'],
           page_length: 1000,
+          limit:999999,
         })
         .then((data) => {
           if (data.length > 0) {
@@ -419,6 +426,12 @@ export default {
     });
     evntBus.$on('register_pos_profile', (data) => {
       this.pos_profile = data.pos_profile;
+    });
+    evntBus.$on('add_territory_to_list', (data) => {
+      this.territorys.push(data.name);
+    });
+    evntBus.$on('set_territory', (data) => {
+      this.territory = data;
     });
     this.getCustomerGroups();
     this.getCustomerTerritorys();

@@ -8,6 +8,7 @@
     <NewAddress></NewAddress>
     <MpesaPayments></MpesaPayments>
     <Variants></Variants>
+    <NewTerritory></NewTerritory>
     <OpeningDialog v-if="dialog" :dialog="dialog"></OpeningDialog>
     <v-row v-show="!dialog">
       <v-col
@@ -79,6 +80,7 @@ import NewAddress from './NewAddress.vue';
 import Variants from './Variants.vue';
 import Returns from './Returns.vue';
 import MpesaPayments from './Mpesa-Payments.vue';
+import NewTerritory from './NewTerritory.vue';
 
 export default {
   data: function () {
@@ -107,6 +109,7 @@ export default {
     NewAddress,
     Variants,
     MpesaPayments,
+    NewTerritory
   },
 
   methods: {

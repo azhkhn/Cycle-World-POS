@@ -1020,6 +1020,11 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
                 return fieldname
             field = i
             if(i == 'mobile_no'):field='phone'
+            if(i=='gst_state'):
+                address.update({
+                
+                'state':customer_info.get('gst_state')
+            })
             address.update({
                 
                 field:customer_info.get(i)
@@ -1074,6 +1079,16 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
             "Customer", customer, "customer_primary_contact", contact_doc.name
         )
 
+@frappe.whitelist()
+def create_territory(**args):
+    if isinstance(args, str):
+        args = json.loads(args)
+    territory = frappe.new_doc('Territory')
+    territory.update(args)
+    if not territory.get('parent_territory'):
+        frappe.throw("Kindly fill the parent territory")
+    territory.save(ignore_permissions = True)
+    return territory
 
 @frappe.whitelist()
 def search_invoices_for_return(invoice_name, company):
