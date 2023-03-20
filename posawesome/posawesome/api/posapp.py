@@ -1018,22 +1018,20 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
             if(fieldname in ['address_line1', 'city'] and not value):
                 frappe.msgprint('Address and City is Mandatory.')
                 return fieldname
-            frappe.errprint(i if(i != 'mobile_no') else 'phone')
-            frappe.errprint(customer_info.get(i))
             field = i
             if(i == 'mobile_no'):field='phone'
-            frappe.errprint(f"{field} : {customer_info.get(i)}")
+            if(i=='gst_state'):
+                address.update({
+                
+                'state':customer_info.get('gst_state')
+            })
             address.update({
                 
                 field:customer_info.get(i)
             })
-            frappe.errprint("address.get('phone')")
-            frappe.errprint(address.get('phone'))
     if(fieldname == 'phone'):fieldname='mobile_no'
     if(customer_info.get('address_line1') and customer_info.get('city')):
         address.save(ignore_permissions = True)
-        frappe.errprint(address.get('phone'))
-        frappe.errprint("address.get('phone')")
         customer_doc.reload()
         customer_doc.update({
             'customer_primary_address':address.name
@@ -1081,6 +1079,16 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
             "Customer", customer, "customer_primary_contact", contact_doc.name
         )
 
+@frappe.whitelist()
+def create_territory(**args):
+    if isinstance(args, str):
+        args = json.loads(args)
+    territory = frappe.new_doc('Territory')
+    territory.update(args)
+    if not territory.get('parent_territory'):
+        frappe.throw("Kindly fill the parent territory")
+    territory.save(ignore_permissions = True)
+    return territory
 
 @frappe.whitelist()
 def search_invoices_for_return(invoice_name, company):
