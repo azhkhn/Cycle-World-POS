@@ -281,18 +281,28 @@ export default {
   },
 
   methods: {
+    gst_state_number_onchange(fieldname, $event){
+
+      if(this.customer_info. gst_state_number){
+        this.customer_info.gst_state = this.number_state_mapping[this.customer_info.gst_state_number]
+      }
+      else{
+        this.customer_info.gst_state = ''
+      }
+    },
     gst_state_onchange(fieldname, $event){
-      console.log(this.customer_info.gst_state)
       if(this.customer_info.gst_state){
         this.customer_info.gst_state_number = this.state_numbers[this.customer_info.gst_state]
       }
       else{
         this.customer_info.gst_state_number = ''
       }
+      console.log('gst_state_number_onchange')
       this.set_customer_info(fieldname, $event)
     },
     gstin_onchange(fieldname, $event){
       this.customer_info.gst_state_number = this.customer_info.gstin.slice(0, 2)
+      this.gst_state_number_onchange('gst_state_number', $event)
       this.set_customer_info(fieldname, $event)
     },
     close_dialog() {

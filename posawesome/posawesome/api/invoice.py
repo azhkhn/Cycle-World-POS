@@ -75,15 +75,11 @@ def create_sales_order(doc):
             sales_order_doc.flags.ignore_permissions = True
             sales_order_doc.flags.ignore_account_permission = True
             sales_order_doc.is_pos = 1
-            frappe.errprint('ssssss')
             sales_order_doc.save()
-            frappe.errprint('ssssss1111111111')
             sales_order_doc.submit()
-            frappe.errprint('ssssss2222222222')
             url = frappe.utils.get_url_to_form(
                 sales_order_doc.doctype, sales_order_doc.name
             )
-            frappe.errprint(sales_order_doc.__dict__)
             msgprint = "Sales Order Created at <a href='{0}'>{1}</a>".format(
                 url, sales_order_doc.name
             )
@@ -91,10 +87,10 @@ def create_sales_order(doc):
                 _(msgprint), title="Sales Order Created", indicator="green", alert=True
             )
             i = 0
-            # for item in sales_order_doc.items:
-            #     doc.items[i].sales_order = sales_order_doc.name
-            #     doc.items[i].so_detail = item.name
-            #     i += 1
+            for item in sales_order_doc.items:
+                doc.items[i].sales_order = sales_order_doc.name
+                doc.items[i].so_detail = item.name
+                i += 1
 
 
 def make_sales_order(source_name, target_doc=None, ignore_permissions=True):
@@ -109,7 +105,6 @@ def make_sales_order(source_name, target_doc=None, ignore_permissions=True):
         target.delivery_date = (
             obj.posa_delivery_date or source_parent.posa_delivery_date
         )
-    frappe.errprint('doclist')
     doclist = get_mapped_doc(
         "Sales Invoice",
         source_name,
@@ -149,7 +144,6 @@ def make_sales_order(source_name, target_doc=None, ignore_permissions=True):
         set_missing_values,
         ignore_permissions=ignore_permissions,
     )
-    frappe.errprint(doclist)
     return doclist
 
 

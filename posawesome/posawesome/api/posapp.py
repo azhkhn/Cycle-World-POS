@@ -118,12 +118,6 @@ def update_opening_shift_data(data, pos_profile):
 
 
 @frappe.whitelist()
-def get_all_items(pos_profile):
-    pos_profile = json.loads(pos_profile)
-    return frappe.get_all('Item', filters={'disabled':0, 'has_variants':0}, pluck='name')
-
-
-@frappe.whitelist()
 def get_items(pos_profile, price_list=None):
     pos_profile = json.loads(pos_profile)
     if not price_list:
@@ -353,8 +347,8 @@ def get_sales_person_names():
 def update_invoice(data):
     data = json.loads(data)
     if data.get("name"):
-        del data['name']
-        invoice_doc = frappe.get_doc(data)
+        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+
         invoice_doc.update(data)
     else:
         invoice_doc = frappe.get_doc(data)
@@ -405,11 +399,7 @@ def update_invoice(data):
 def submit_invoice(invoice, data):
     data = json.loads(data)
     invoice = json.loads(invoice)
-    if(frappe.db.exists("Sales Invoice", invoice.get("name"))):
-        invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
-    else:
-        del invoice['name']
-        invoice_doc = frappe.get_doc(invoice)
+    invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
     invoice_doc.update(invoice)
     if invoice.get("posa_delivery_date"):
         invoice_doc.update_stock = 0
@@ -879,6 +869,8 @@ def create_address(args, customer):
     if(args.get('address_line1') and args.get('city')):
         address = frappe.new_doc('Address')
         address.update({
+            'is_primary_address':1,
+            'is_shipping_address':1,
             'address_line1':args.get('address_line1'),
             'address_line2':args.get('address_line2'),
             'city':args.get('city'),
@@ -996,7 +988,7 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
     )
     address_fields = ['address_line1', 'address_line2', 'city', 
                       'state', 'gst_state', 'gst_state_number', 
-                      'pincode', 'gstin', 'mobile_no', 'phone', 'email_id']
+                      'pincode', 'gstin', 'mobile_no', 'email_id']
     
     address = {}
     customer_doc = frappe.get_doc('Customer', customer)
@@ -1017,18 +1009,28 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
         address.update({
             'links' : links,
             'address_line1' : customer_info.get('address_line1'),
-            'city' : customer_info.get('city')
+            'city' : customer_info.get('city'),
+            'is_primary_address':1,
+            'is_shipping_address':1,
         })
-
-    if(fieldname in address_fields and address):
-        if(fieldname in ['address_line1', 'city'] and not value):
-            frappe.msgprint('Address and City is Mandatory.')
-            return fieldname
-        if(fieldname == 'mobile_no'):fieldname='phone'
-        address.update({
-            fieldname:value
-        })
-        if(fieldname == 'phone'):fieldname='mobile_no'
+    for i in address_fields:
+        if(fieldname in address_fields and address):
+            if(fieldname in ['address_line1', 'city'] and not value):
+                frappe.msgprint('Address and City is Mandatory.')
+                return fieldname
+            field = i
+            if(i == 'mobile_no'):field='phone'
+            if(i=='gst_state'):
+                address.update({
+                
+                'state':customer_info.get('gst_state')
+            })
+            address.update({
+                
+                field:customer_info.get(i)
+            })
+    if(fieldname == 'phone'):fieldname='mobile_no'
+    if(customer_info.get('address_line1') and customer_info.get('city')):
         address.save(ignore_permissions = True)
         customer_doc.reload()
         customer_doc.update({
@@ -1077,6 +1079,16 @@ def set_customer_info(fieldname, customer, value="", customer_info = {}):
             "Customer", customer, "customer_primary_contact", contact_doc.name
         )
 
+@frappe.whitelist()
+def create_territory(**args):
+    if isinstance(args, str):
+        args = json.loads(args)
+    territory = frappe.new_doc('Territory')
+    territory.update(args)
+    if not territory.get('parent_territory'):
+        frappe.throw("Kindly fill the parent territory")
+    territory.save(ignore_permissions = True)
+    return territory
 
 @frappe.whitelist()
 def search_invoices_for_return(invoice_name, company):

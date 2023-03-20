@@ -2,7 +2,7 @@
   <div>
     <v-card
       class="selection mx-auto grey lighten-5"
-      style="max-height: 75vh; height: 45vh"
+      style="max-height: 75vh; height: 75vh"
     >
       <v-progress-linear
         :active="loading"
@@ -39,7 +39,7 @@
             :disabled="invoiceType == 'Return'"
           ></v-select>
         </v-col>
-        <v-col class="pb-0 mb-2" cols="6">
+        <v-col class="pb-0 mb-2">
           <v-text-field
             dense
             clearable
@@ -55,16 +55,6 @@
             @keydown.enter="enter_event"
             ref="debounce_search"
           ></v-text-field>
-        </v-col>
-        <v-col cols="6">
-          <v-select
-            :items="items_group"
-            :label="frappe._('Items Group')"
-            dense
-            outlined
-            hide-details
-            v-model="item_group"
-          ></v-select>
         </v-col>
         <v-col cols="3" class="pb-0 mb-2" v-if="pos_profile.posa_input_qty">
           <v-text-field
@@ -90,7 +80,7 @@
             hide-details
           ></v-checkbox>
         </v-col>
-        <v-col v-show="debounce_search" cols="12" class="pt-0 mt-0">
+        <v-col cols="12" class="pt-0 mt-0">
           <div fluid class="items" v-if="items_view == 'card'">
             <v-row dense class="overflow-y-auto" style="max-height: 67vh">
               <v-col
@@ -129,7 +119,7 @@
             </v-row>
           </div>
           <div fluid class="items" v-if="items_view == 'list'">
-            <div class="my-0 py-0 overflow-y-auto" style="max-height: 30vh">
+            <div class="my-0 py-0 overflow-y-auto" style="max-height: 65vh">
               <template>
                 <v-data-table
                   :headers="getItmesHeaders()"
@@ -153,7 +143,7 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-card class="cards mb-0 mt-3 pa-2 grey lighten-5 hidden">
+    <v-card class="cards mb-0 mt-3 pa-2 grey lighten-5">
       <v-row no-gutters align="center" justify="center">
         <v-col cols="12">
           <v-select
@@ -211,7 +201,7 @@ export default {
     items: [],
     search: '',
     first_search: '',
-    itemsPerPage: 10000,
+    itemsPerPage: 1000,
     offersCount: 0,
     appliedOffersCount: 0,
     couponsCount: 0,
@@ -491,9 +481,9 @@ export default {
         ) {
           return (filtred_list = filtred_group_list
             .filter((item) => !item.variant_of)
-            );
+            .slice(0, 50));
         } else {
-          return (filtred_list = filtred_group_list);
+          return (filtred_list = filtred_group_list.slice(0, 50));
         }
       } else if (this.search) {
         filtred_list = filtred_group_list.filter((item) => {
@@ -540,9 +530,9 @@ export default {
         this.pos_profile.posa_show_template_items &&
         this.pos_profile.posa_hide_variants_items
       ) {
-        return filtred_list.filter((item) => !item.variant_of);
+        return filtred_list.filter((item) => !item.variant_of).slice(0, 50);
       } else {
-        return filtred_list;
+        return filtred_list.slice(0, 50);
       }
     },
     debounce_search: {
